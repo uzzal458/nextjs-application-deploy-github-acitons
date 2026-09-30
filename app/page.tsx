@@ -5,8 +5,10 @@ import styles from "./page.module.css";
 
 type Todo = { id: string; text: string; done: boolean };
 type Filter = "all" | "active" | "done";
+type Theme = "system" | "light" | "dark";
 
 const STORAGE_KEY = "todos";
+const THEME_KEY = "theme";
 
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -14,12 +16,15 @@ export default function Home() {
   const [filter, setFilter] = useState<Filter>("all");
   const [loaded, setLoaded] = useState(false);
   const [today, setToday] = useState("");
+  const [theme, setTheme] = useState<Theme>("system");
 
   // Load from localStorage after mount to avoid hydration mismatch
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) setTodos(JSON.parse(saved));
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      if (savedTheme === "light" || savedTheme === "dark") setTheme(savedTheme);
     } catch {}
     setToday(
       new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }),
@@ -33,6 +38,17 @@ export default function Home() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
     } catch {}
   }, [todos, loaded]);
+
+  function changeTheme(next: Theme) {
+    setTheme(next);
+    const root = document.documentElement;
+    if (next === "system") delete root.dataset.theme;
+    else root.dataset.theme = next;
+    try {
+      if (next === "system") localStorage.removeItem(THEME_KEY);
+      else localStorage.setItem(THEME_KEY, next);
+    } catch {}
+  }
 
   function addTodo(e: React.FormEvent) {
     e.preventDefault();
@@ -59,8 +75,23 @@ export default function Home() {
     <main className={styles.main}>
       <section className={styles.card}>
         <header className={styles.header}>
-          <h1 className={styles.title}>My Todos</h1>
-          <p className={styles.subtitle}>{today || "\u00a0"}</p>
+          <div>
+            <h1 className={styles.title}>My Todos</h1>
+            <p className={styles.subtitle}>{today || "\u00a0"}</p>
+          </div>
+          <div className={styles.themeSwitch} role="group" aria-label="Theme">
+            {(["light", "dark", "system"] as Theme[]).map((t) => (
+              <button
+                key={t}
+                className={`${styles.themeBtn} ${theme === t ? styles.themeBtnActive : ""}`}
+                onClick={() => changeTheme(t)}
+                aria-pressed={theme === t}
+                title={t[0].toUpperCase() + t.slice(1)}
+              >
+                {t === "light" ? "☀" : t === "dark" ? "☾" : "Auto"}
+              </button>
+            ))}
+          </div>
         </header>
 
         <form className={styles.form} onSubmit={addTodo}>
