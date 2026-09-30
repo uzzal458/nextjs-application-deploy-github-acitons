@@ -7,6 +7,10 @@
   --accent: #4f46e5;
   --accent-hover: #4338ca;
   --danger: #dc2626;
+  --success: #16a34a;
+  --prio-low: #0891b2;
+  --prio-medium: #d97706;
+  --prio-high: #dc2626;
   --radius: 12px;
 }
 
@@ -20,6 +24,10 @@
     --accent: #818cf8;
     --accent-hover: #a5b4fc;
     --danger: #f87171;
+    --success: #4ade80;
+    --prio-low: #22d3ee;
+    --prio-medium: #fbbf24;
+    --prio-high: #f87171;
   }
 }
 
@@ -32,6 +40,10 @@
   --accent: #818cf8;
   --accent-hover: #a5b4fc;
   --danger: #f87171;
+  --success: #4ade80;
+  --prio-low: #22d3ee;
+  --prio-medium: #fbbf24;
+  --prio-high: #f87171;
 }
 
 :root { color-scheme: light; }
@@ -52,3 +64,7 @@ body {
 }
 
 button, input { font: inherit; color: inherit; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
