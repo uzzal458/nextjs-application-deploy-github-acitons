@@ -35,7 +35,10 @@ function dueLabel(due: string, todayIso: string) {
   if (due === todayIso) return "Today";
   if (due === isoDate(tomorrow)) return "Tomorrow";
   const [y, m, d] = due.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 // Older saved todos only had id/text/done
@@ -86,7 +89,13 @@ export default function Home() {
       if (savedTheme === "light" || savedTheme === "dark") setTheme(savedTheme);
     } catch {}
     const now = new Date();
-    setToday(now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }));
+    setToday(
+      now.toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+      }),
+    );
     setTodayIso(isoDate(now));
     setLoaded(true);
   }, []);
@@ -121,9 +130,12 @@ export default function Home() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  useEffect(() => () => {
-    if (undoTimer.current) clearTimeout(undoTimer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (undoTimer.current) clearTimeout(undoTimer.current);
+    },
+    [],
+  );
 
   function changeTheme(next: Theme) {
     setTheme(next);
@@ -157,7 +169,10 @@ export default function Home() {
     setTodos((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
 
   const cyclePriority = (t: Todo) =>
-    update(t.id, { priority: PRIORITIES[(PRIORITIES.indexOf(t.priority) + 1) % PRIORITIES.length] });
+    update(t.id, {
+      priority:
+        PRIORITIES[(PRIORITIES.indexOf(t.priority) + 1) % PRIORITIES.length],
+    });
 
   // Removes todos but keeps them (with their positions) so the toast can undo it
   function removeWhere(match: (t: Todo) => boolean) {
@@ -202,7 +217,8 @@ export default function Home() {
   }
 
   const allDone = todos.length > 0 && todos.every((t) => t.done);
-  const toggleAll = () => setTodos((prev) => prev.map((t) => ({ ...t, done: !allDone })));
+  const toggleAll = () =>
+    setTodos((prev) => prev.map((t) => ({ ...t, done: !allDone })));
 
   // Drag & drop: move the dragged todo to the target's position in the full list
   function drop(targetId: string) {
@@ -225,24 +241,36 @@ export default function Home() {
       (!query || t.text.toLowerCase().includes(query)),
   );
   if (sort === "priority") {
-    visible = [...visible].sort((a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority]);
+    visible = [...visible].sort(
+      (a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority],
+    );
   } else if (sort === "due") {
-    visible = [...visible].sort((a, b) => (a.due ?? "9999").localeCompare(b.due ?? "9999"));
+    visible = [...visible].sort((a, b) =>
+      (a.due ?? "9999").localeCompare(b.due ?? "9999"),
+    );
   }
   const canDrag = sort === "manual";
 
   const remaining = todos.filter((t) => !t.done).length;
   const doneCount = todos.length - remaining;
-  const percent = todos.length ? Math.round((doneCount / todos.length) * 100) : 0;
-  const overdue = todos.filter((t) => !t.done && t.due && todayIso && t.due < todayIso).length;
-  const counts: Record<Filter, number> = { all: todos.length, active: remaining, done: doneCount };
+  const percent = todos.length
+    ? Math.round((doneCount / todos.length) * 100)
+    : 0;
+  const overdue = todos.filter(
+    (t) => !t.done && t.due && todayIso && t.due < todayIso,
+  ).length;
+  const counts: Record<Filter, number> = {
+    all: todos.length,
+    active: remaining,
+    done: doneCount,
+  };
 
   return (
     <main className={styles.main}>
       <section className={styles.card}>
         <header className={styles.header}>
           <div>
-            <h1 className={styles.title}>My Todos</h1>
+            <h1 className={styles.title}>Shomvob AI Todos</h1>
             <p className={styles.subtitle}>{today || " "}</p>
           </div>
           <div className={styles.themeSwitch} role="group" aria-label="Theme">
@@ -263,7 +291,9 @@ export default function Home() {
         <div className={styles.progress}>
           <div className={styles.progressText}>
             <span>
-              {allDone ? "All done — nice work! 🎉" : `${doneCount} of ${todos.length} completed`}
+              {allDone
+                ? "All done — nice work! 🎉"
+                : `${doneCount} of ${todos.length} completed`}
             </span>
             <span>{percent}%</span>
           </div>
@@ -291,7 +321,11 @@ export default function Home() {
             aria-label="New todo"
           />
           <div className={styles.formRow}>
-            <div className={styles.prioritySelect} role="group" aria-label="Priority">
+            <div
+              className={styles.prioritySelect}
+              role="group"
+              aria-label="Priority"
+            >
               {PRIORITIES.map((p) => (
                 <button
                   key={p}
@@ -312,7 +346,11 @@ export default function Home() {
               onChange={(e) => setDue(e.target.value)}
               aria-label="Due date"
             />
-            <button className={styles.addBtn} type="submit" disabled={!text.trim()}>
+            <button
+              className={styles.addBtn}
+              type="submit"
+              disabled={!text.trim()}
+            >
               Add
             </button>
           </div>
@@ -369,7 +407,8 @@ export default function Home() {
         ) : (
           <ul className={styles.list}>
             {visible.map((t) => {
-              const isOverdue = !t.done && !!t.due && !!todayIso && t.due < todayIso;
+              const isOverdue =
+                !t.done && !!t.due && !!todayIso && t.due < todayIso;
               return (
                 <li
                   key={t.id}
@@ -388,7 +427,9 @@ export default function Home() {
                     e.preventDefault();
                     setOverId(t.id);
                   }}
-                  onDragLeave={() => setOverId((id) => (id === t.id ? null : id))}
+                  onDragLeave={() =>
+                    setOverId((id) => (id === t.id ? null : id))
+                  }
                   onDrop={(e) => {
                     e.preventDefault();
                     drop(t.id);
@@ -399,7 +440,11 @@ export default function Home() {
                   }}
                 >
                   {canDrag && (
-                    <span className={styles.handle} aria-hidden title="Drag to reorder">
+                    <span
+                      className={styles.handle}
+                      aria-hidden
+                      title="Drag to reorder"
+                    >
                       ⋮⋮
                     </span>
                   )}
@@ -445,7 +490,9 @@ export default function Home() {
                         {t.priority}
                       </button>
                       {t.due && (
-                        <span className={`${styles.due} ${isOverdue ? styles.overdue : ""}`}>
+                        <span
+                          className={`${styles.due} ${isOverdue ? styles.overdue : ""}`}
+                        >
                           {isOverdue ? "Overdue · " : ""}
                           {dueLabel(t.due, todayIso)}
                         </span>
@@ -479,10 +526,16 @@ export default function Home() {
 
         <footer className={styles.footer}>
           <div className={styles.footerLeft}>
-            <button className={styles.linkBtn} onClick={toggleAll} disabled={todos.length === 0}>
+            <button
+              className={styles.linkBtn}
+              onClick={toggleAll}
+              disabled={todos.length === 0}
+            >
               {allDone ? "Mark all active" : "Mark all done"}
             </button>
-            {overdue > 0 && <span className={styles.overdueNote}>{overdue} overdue</span>}
+            {overdue > 0 && (
+              <span className={styles.overdueNote}>{overdue} overdue</span>
+            )}
           </div>
           <button
             className={`${styles.linkBtn} ${styles.danger}`}
@@ -495,13 +548,16 @@ export default function Home() {
       </section>
 
       <p className={styles.hint}>
-        Double-click a task to edit · drag ⋮⋮ to reorder · click a priority tag to change it
+        Double-click a task to edit · drag ⋮⋮ to reorder · click a priority tag
+        to change it
       </p>
 
       {removed && (
         <div className={styles.toast} role="status">
           <span>
-            {removed.length === 1 ? "Task deleted" : `${removed.length} tasks deleted`}
+            {removed.length === 1
+              ? "Task deleted"
+              : `${removed.length} tasks deleted`}
           </span>
           <button className={styles.undoBtn} onClick={undo}>
             Undo
